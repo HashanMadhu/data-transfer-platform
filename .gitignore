@@ -5,6 +5,7 @@ __pycache__/
 
 # Node modules (Frontend)
 node_modules/
+frontend/node_modules/
 .pnpm-store/
 dist/
 
@@ -15,3 +16,10 @@ dist/
 # OS related
 .DS_Store
 Thumbs.db
+
+# IDE/Editor related
+.vscode/
+.idea/
+
+# Logs
+*.log
