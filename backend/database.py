@@ -7,6 +7,7 @@ import urllib.parse
 # Connection string for MySQL (XAMPP - default password is empty)
 MYSQL_DATABASE_URL = "mysql+pymysql://root:@localhost:3306/source_db"
 
+
 # Connection string for PostgreSQL (Replace 'root' with your actual pgAdmin password if different)
 #POSTGRES_DATABASE_URL = "postgresql://postgres:Hashan@1013@localhost:5432/target_db"
 

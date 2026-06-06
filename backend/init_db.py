@@ -1,23 +1,21 @@
 import models
-from database import mysql_engine, postgres_engine, Base
+from database import mysql_engine, postgres_engine
 
 def initialize_databases():
-    """
-    Automatically creates the required tables in both MySQL and PostgreSQL databases
-    based on the SQLAlchemy models defined in models.py
-    """
     print("--- Starting Database Initialization ---")
 
     try:
-        # Create tables in MySQL (Source DB)
-        print("Creating tables in MySQL (Source Database)...")
-        Base.metadata.create_all(bind=mysql_engine)
-        print("Successfully created tables in MySQL.")
+        
+        # Create tables in MySQL (Source Database) 
+        print("Creating table in MySQL (Source Database)...")
+        models.SourceUser.__table__.create(bind=mysql_engine, checkfirst=True)
+        print("Successfully created 'users' table in MySQL.")
 
-        # Create tables in PostgreSQL (Target DB)
+        # Create tables in PostgreSQL 'secure_users', 'migration_logs'
         print("Creating tables in PostgreSQL (Target Database)...")
-        Base.metadata.create_all(bind=postgres_engine)
-        print("Successfully created tables in PostgreSQL.")
+        models.TargetUser.__table__.create(bind=postgres_engine, checkfirst=True)
+        models.MigrationLog.__table__.create(bind=postgres_engine, checkfirst=True)
+        print("Successfully created target tables in PostgreSQL.")
 
         print("--- Database Initialization Completed Successfully! ---")
 
