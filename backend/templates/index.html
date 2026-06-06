@@ -1,164 +1,330 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Migration Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col justify-between">
-
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body
+    class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col justify-between"
+  >
     <header class="bg-gray-800 border-b border-gray-700 p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-wider text-teal-400">
-                <i class="fa-solid fa-server mr-2"></i>Secure Data Migration Platform
-            </h1>
-            <div id="db-status" class="flex gap-4 text-sm">
-                <span class="bg-gray-700 px-3 py-1 rounded-full"><i class="fa-solid fa-circle text-gray-500 mr-2 animate-pulse"></i>Checking Systems...</span>
-            </div>
+      <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-wider text-teal-400">
+          <i class="fa-solid fa-server mr-2"></i>Secure Data Migration Platform
+        </h1>
+        <div id="db-status" class="flex gap-4 text-sm">
+          <span class="bg-gray-700 px-3 py-1 rounded-full"
+            ><i class="fa-solid fa-circle text-gray-500 mr-2 animate-pulse"></i
+            >Checking...</span
+          >
         </div>
+      </div>
     </header>
 
-    <main class="container mx-auto px-4 py-12 flex-grow max-w-4xl">
-        
-        <div class="bg-gray-800 border border-gray-700 rounded-xl p-8 shadow-2xl text-center mb-8">
-            <h2 class="text-2xl font-semibold mb-2">MySQL ➔ PostgreSQL Migration</h2>
-            <p class="text-gray-400 mb-8 text-sm">Fetch users from MySQL, encrypt their passwords, and securely store them in PostgreSQL.</p>
-            
-            <button id="migrate-btn" onclick="triggerMigration()" class="bg-teal-500 hover:bg-teal-600 text-gray-900 font-bold text-lg px-8 py-4 rounded-lg shadow-lg transition duration-300 transform hover:scale-105 inline-flex items-center gap-3">
-                <i id="btn-icon" class="fa-solid fa-rocket animate-bounce"></i>
-                <span id="btn-text">Start Live Migration</span>
-            </button>
+    <main
+      class="container mx-auto px-4 py-8 flex-grow max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8"
+    >
+      <div
+        class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl h-fit"
+      >
+        <h3 class="text-lg font-semibold mb-4 text-teal-400">
+          <i class="fa-solid fa-user-plus mr-2"></i>Add User to MySQL
+        </h3>
+        <p class="text-xs text-gray-400 mb-6">
+          Insert plain-text user profile into the MySQL source database before
+          migration.
+        </p>
 
-            <div id="loading-spinner" class="hidden mt-6 text-teal-400">
-                <i class="fa-solid fa-spinner fa-spin text-3xl mb-2"></i>
-                <p class="text-sm text-gray-400">Processing migration and encrypting payloads...</p>
-            </div>
+        <form
+          id="add-user-form"
+          onsubmit="saveUserToMySQL(event)"
+          class="space-y-4"
+        >
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 mb-1"
+              >Full Name</label
+            >
+            <input
+              type="text"
+              id="form-name"
+              required
+              placeholder="John Doe"
+              class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-teal-400"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 mb-1"
+              >Email Address</label
+            >
+            <input
+              type="email"
+              id="form-email"
+              required
+              placeholder="john@example.com"
+              class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-teal-400"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 mb-1"
+              >Plain Password</label
+            >
+            <input
+              type="password"
+              id="form-password"
+              required
+              placeholder="••••••••"
+              class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-teal-400"
+            />
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-teal-500 hover:bg-teal-600 text-gray-900 font-bold p-2.5 rounded text-sm transition duration-200"
+          >
+            <i class="fa-solid fa-floppy-disk mr-2"></i>Save User to MySQL
+          </button>
+        </form>
 
-            <div id="alert-box" class="hidden mt-6 p-4 rounded-lg text-left max-w-md mx-auto transition duration-300"></div>
+        <div id="form-alert" class="hidden mt-4 p-3 rounded text-xs"></div>
+      </div>
+
+      <div class="md:col-span-2 space-y-8">
+        <div
+          class="bg-gray-800 border border-gray-700 rounded-xl p-8 shadow-2xl text-center"
+        >
+          <h2 class="text-2xl font-semibold mb-2">
+            MySQL ➔ PostgreSQL Migration
+          </h2>
+          <p class="text-gray-400 mb-8 text-sm">
+            Fetch users from MySQL, encrypt their passwords, and securely store
+            them in PostgreSQL.
+          </p>
+
+          <button
+            id="migrate-btn"
+            onclick="triggerMigration()"
+            class="bg-teal-500 hover:bg-teal-600 text-gray-900 font-bold text-lg px-8 py-4 rounded-lg shadow-lg transition duration-300 transform hover:scale-105 inline-flex items-center gap-3"
+          >
+            <i id="btn-icon" class="fa-solid fa-rocket animate-bounce"></i>
+            <span id="btn-text">Start Live Migration</span>
+          </button>
+
+          <div id="loading-spinner" class="hidden mt-6 text-teal-400">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-2"></i>
+            <p class="text-sm text-gray-400">
+              Processing migration and encrypting payloads...
+            </p>
+          </div>
+
+          <div
+            id="alert-box"
+            class="hidden mt-6 p-4 rounded-lg text-left max-w-md mx-auto transition duration-300"
+          ></div>
         </div>
 
-        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl">
-            <h3 class="text-lg font-semibold mb-4 text-gray-300"><i class="fa-solid fa-history mr-2"></i>Migration History Logs</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-gray-700 text-gray-400 text-sm">
-                            <th class="pb-3 font-semibold">Log ID</th>
-                            <th class="pb-3 font-semibold">Status</th>
-                            <th class="pb-3 font-semibold">Records Migrated</th>
-                            <th class="pb-3 font-semibold">Timestamp</th>
-                        </tr>
-                    </thead>
-                    <tbody id="logs-table-body" class="text-sm text-gray-300 divide-y divide-gray-700">
-                        <tr>
-                            <td colspan="4" class="py-4 text-center text-gray-500">No migration logs loaded yet.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div
+          class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl"
+        >
+          <h3 class="text-lg font-semibold mb-4 text-gray-300">
+            <i class="fa-solid fa-history mr-2"></i>Migration History Logs
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-gray-700 text-gray-400 text-sm">
+                  <th class="pb-3 font-semibold">Log ID</th>
+                  <th class="pb-3 font-semibold">Status</th>
+                  <th class="pb-3 font-semibold">Records Migrated</th>
+                  <th class="pb-3 font-semibold">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody
+                id="logs-table-body"
+                class="text-sm text-gray-300 divide-y divide-gray-700"
+              >
+                <tr>
+                  <td colspan="4" class="py-4 text-center text-gray-500">
+                    No migration logs loaded yet.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </main>
 
-    <footer class="bg-gray-800 border-t border-gray-700 p-4 text-center text-gray-500 text-xs">
-        &copy; 2026 Secure Data Transfer Platform. Developed by Hashan.
+    <footer
+      class="bg-gray-800 border-t border-gray-700 p-4 text-center text-gray-500 text-xs"
+    >
+      &copy; 2026 Secure Data Transfer Platform. Developed by Hashan.
     </footer>
 
     <script>
-        const API_BASE_URL = 'http://127.0.0.1:8000/api';
+      const API_BASE_URL = "http://127.0.0.1:8000/api";
 
-        // පද්ධතිය පටන් ගත් ගමන් ක්‍රියාත්මක වන කොටස
-        document.addEventListener('DOMContentLoaded', () => {
-            checkDatabaseStatus();
-            fetchMigrationLogs();
-        });
+      // 1. පද්ධතිය පටන් ගත් ගමන් Databases Status එක සහ Logs ටික Load කරගැනීම
+      document.addEventListener("DOMContentLoaded", () => {
+        checkDatabaseStatus();
+        fetchMigrationLogs();
+      });
 
-        // 1. Databases Connected ද කියා බලන නිවැරදි Function එක
-        async function checkDatabaseStatus() {
-            const statusDiv = document.getElementById('db-status');
-            try {
-                const response = await fetch(`${API_BASE_URL}/status`);
-                const data = await response.json();
-                
-                if (data.mysql === 'Connected' && data.postgresql === 'Connected') {
-                    statusDiv.innerHTML = `
+      // 2. Databases Connected ද කියා බලන Function එක
+      async function checkDatabaseStatus() {
+        const statusDiv = document.getElementById("db-status");
+        try {
+          const response = await fetch(`${API_BASE_URL}/status`);
+          const data = await response.json();
+
+          if (data.mysql === "Connected" && data.postgresql === "Connected") {
+            statusDiv.innerHTML = `
                         <span class="bg-green-900/50 text-green-400 border border-green-700 px-3 py-1 rounded-full text-xs font-semibold"><i class="fa-solid fa-database mr-1"></i> MySQL: OK</span>
                         <span class="bg-green-900/50 text-green-400 border border-green-700 px-3 py-1 rounded-full text-xs font-semibold"><i class="fa-solid fa-database mr-1"></i> Postgres: OK</span>
                     `;
-                } else {
-                    statusDiv.innerHTML = `
+          } else {
+            statusDiv.innerHTML = `
                         <span class="bg-yellow-900/50 text-yellow-400 border border-yellow-700 px-3 py-1 rounded-full text-xs font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> MySQL: ${data.mysql}</span>
                         <span class="bg-yellow-900/50 text-yellow-400 border border-yellow-700 px-3 py-1 rounded-full text-xs font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Postgres: ${data.postgresql}</span>
                     `;
-                }
-            } catch (error) {
-                statusDiv.innerHTML = `<span class="bg-red-900/50 text-red-400 border border-red-700 px-3 py-1 rounded-full text-xs font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Server Connection Failed</span>`;
-            }
+          }
+        } catch (error) {
+          statusDiv.innerHTML = `<span class="bg-red-900/50 text-red-400 border border-red-700 px-3 py-1 rounded-full text-xs font-semibold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Server / DB Connection Failed</span>`;
         }
+      }
 
-        // 2. Migration එක Trigger කරන Function එක
-        async function triggerMigration() {
-            const btn = document.getElementById('migrate-btn');
-            const spinner = document.getElementById('loading-spinner');
-            const alertBox = document.getElementById('alert-box');
+      async function saveUserToMySQL(event) {
+        event.preventDefault(); // Stop page reload
 
-            btn.disabled = true;
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-            spinner.classList.remove('hidden');
-            alertBox.classList.add('hidden');
+        const name = document.getElementById("form-name").value;
+        const email = document.getElementById("form-email").value;
+        const password = document.getElementById("form-password").value;
+        const formAlert = document.getElementById("form-alert");
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/migrate`, { method: 'POST' });
-                const data = await response.json();
+        formAlert.classList.add("hidden");
 
-                if (response.ok && data.status === 'SUCCESS') {
-                    alertBox.className = "mt-6 p-4 rounded-lg text-left max-w-md mx-auto bg-green-900/40 text-green-400 border border-green-700 flex items-center gap-3";
-                    alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-xl"></i> <div><span class="font-bold">Migration Success!</span> ${data.rows_migrated} user profiles encrypted and transfered.</div>`;
-                    alertBox.classList.remove('hidden');
-                    fetchMigrationLogs(); // Table එක Refresh කරනවා
-                } else {
-                    throw new Error(data.detail || "Migration process encountered an anomaly.");
-                }
-            } catch (error) {
-                alertBox.className = "mt-6 p-4 rounded-lg text-left max-w-md mx-auto bg-red-900/40 text-red-400 border border-red-700 flex items-center gap-3";
-                alertBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-xl"></i> <div><span class="font-bold">Migration Failed:</span> ${error.message}</div>`;
-                alertBox.classList.remove('hidden');
-            } finally {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                spinner.classList.add('hidden');
-            }
+        try {
+          const response = await fetch(`${API_BASE_URL}/users/mysql`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.status === "SUCCESS") {
+            formAlert.className =
+              "mt-4 p-3 rounded text-xs bg-green-900/40 text-green-400 border border-green-700";
+            formAlert.innerHTML = `<i class="fa-solid fa-circle-check mr-2"></i>${data.message}`;
+            formAlert.classList.remove("hidden");
+            document.getElementById("add-user-form").reset(); // Reset form inputs
+          } else {
+            throw new Error(data.detail || "Failed to register user.");
+          }
+        } catch (error) {
+          formAlert.className =
+            "mt-4 p-3 rounded text-xs bg-red-900/40 text-red-400 border border-red-700";
+          formAlert.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i>${error.message}`;
+          formAlert.classList.remove("hidden");
         }
+      }
 
-        // 3. logs table එකට දත්ත දාන නිවැරදි Function එක (rows_migrated වෙනස් කරන ලදි)
-        async function fetchMigrationLogs() {
-            const tableBody = document.getElementById('logs-table-body');
-            try {
-                const response = await fetch(`${API_BASE_URL}/logs`);
-                const logs = await response.json();
+      // 3. Migration එක Trigger කරන Main Function එක
+      async function triggerMigration() {
+        const btn = document.getElementById("migrate-btn");
+        const btnIcon = document.getElementById("btn-icon");
+        const btnText = document.getElementById("btn-text");
+        const spinner = document.getElementById("loading-spinner");
+        const alertBox = document.getElementById("alert-box");
 
-                if (logs.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">No migration history recorded yet.</td></tr>`;
-                    return;
-                }
+        // බටන් එක Disable කර Loading Spinner එක පෙන්වීම
+        btn.disabled = true;
+        btn.classList.add("opacity-50", "cursor-not-allowed");
+        spinner.classList.remove("hidden");
+        alertBox.classList.add("hidden");
 
-                tableBody.innerHTML = logs.map(log => `
+        try {
+          const response = await fetch(`${API_BASE_URL}/migrate`, {
+            method: "POST",
+          });
+          const data = await response.json();
+
+          if (response.ok && data.status === "SUCCESS") {
+            // Backend එකෙන් මොන Key එක ආවත් ආරක්ෂිතව Count එක බලාගැනීම
+            const migratedCount =
+              data.rows_migrated !== undefined
+                ? data.rows_migrated
+                : data.records_migrated !== undefined
+                  ? data.records_migrated
+                  : 0;
+
+            alertBox.className =
+              "mt-6 p-4 rounded-lg text-left max-w-md mx-auto bg-green-900/40 text-green-400 border border-green-700 flex items-center gap-3";
+            alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-xl"></i> <div><span class="font-bold">Migration Success!</span> ${migratedCount} user profiles encrypted and securely transfered.</div>`;
+            alertBox.classList.remove("hidden");
+            fetchMigrationLogs(); // අලුත් Log එකක් වැදුණු නිසා ලිස්ට් එක Refresh කරනවා
+          } else {
+            throw new Error(
+              data.detail || "Migration process encountered an anomaly.",
+            );
+          }
+        } catch (error) {
+          alertBox.className =
+            "mt-6 p-4 rounded-lg text-left max-w-md mx-auto bg-red-900/40 text-red-400 border border-red-700 flex items-center gap-3";
+          alertBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-xl"></i> <div><span class="font-bold">Migration Failed:</span> ${error.message}</div>`;
+          alertBox.classList.remove("hidden");
+        } finally {
+          // නැවත බටන් එක යථා තත්ත්වයට පත් කිරීම
+          btn.disabled = false;
+          btn.classList.remove("opacity-50", "cursor-not-allowed");
+          spinner.classList.add("hidden");
+        }
+      }
+
+      // 4. PostgreSQL එකෙන් පරණ Logs ටික අරන් Table එකට දාන Function එක
+      async function fetchMigrationLogs() {
+        const tableBody = document.getElementById("logs-table-body");
+        try {
+          const response = await fetch(`${API_BASE_URL}/logs`);
+          const logs = await response.json();
+
+          if (logs.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">No migration history recorded yet.</td></tr>`;
+            return;
+          }
+
+          tableBody.innerHTML = logs
+            .map((log) => {
+              // Backend එකෙන් මොන Key එක එවුවත් ආරක්ෂිතව අගය ලබා ගැනීම (Fallback to 0)
+              const count =
+                log.rows_migrated !== undefined
+                  ? log.rows_migrated
+                  : log.records_migrated !== undefined
+                    ? log.records_migrated
+                    : 0;
+
+              return `
                     <tr class="hover:bg-gray-750 transition duration-150">
                         <td class="py-3 font-mono text-teal-400">${log.id}</td>
                         <td class="py-3">
-                            <span class="px-2 py-0.5 rounded text-xs font-semibold ${log.status === 'SUCCESS' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}">
+                            <span class="px-2 py-0.5 rounded text-xs font-semibold ${log.status === "SUCCESS" ? "bg-green-900 text-green-300" : "bg-red-900 text-red-300"}">
                                 ${log.status}
                             </span>
                         </td>
-                        <td class="py-3 font-semibold">${log.rows_migrated !== undefined ? log.rows_migrated : log.records_migrated}</td>
+                        <td class="py-3 font-semibold">${count}</td>
                         <td class="py-3 text-gray-400 text-xs">${new Date(log.timestamp).toLocaleString()}</td>
                     </tr>
-                `).join('');
-            } catch (error) {
-                tableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-400">Failed to fetch historical logs from target database.</td></tr>`;
-            }
+                `;
+            })
+            .join("");
+        } catch (error) {
+          tableBody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-400">Failed to fetch historical logs from target database.</td></tr>`;
         }
+      }
     </script>
-</body>
+  </body>
 </html>
