@@ -1,3 +1,6 @@
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi import Request # Request එක දැනටමත් නැත්නම් විතරක් දාන්න
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -6,6 +9,12 @@ import models
 import security
 
 app = FastAPI(title="Heterogeneous Data Transfer API")
+templates = Jinja2Templates(directory="templates") 
+
+# 0. Root Route to serve the frontend HTML dashboard
+@app.get("/", response_class=HTMLResponse)
+def read_root(request: Request):
+    return templates.TemplateResponse(request=request, name="index.html")
 
 # Enable CORS so our frontend (React) can communicate with this backend
 app.add_middleware(
