@@ -1,0 +1,17 @@
+# Python environment
+venv/
+__pycache__/
+*.pyc
+
+# Node modules (Frontend)
+node_modules/
+.pnpm-store/
+dist/
+
+# Environment variables (Secrets)
+.env
+.env.local
+
+# OS related
+.DS_Store
+Thumbs.db
